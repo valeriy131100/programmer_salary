@@ -22,6 +22,9 @@ month_ago = datetime.today() - timedelta(days=30)
 
 def predict_rub_salary(vacancy):
     salary = vacancy['salary']
+    if not salary:
+        return None
+
     currency = salary['currency']
     salary_from = salary['from']
     salary_to = salary['to']
@@ -36,6 +39,7 @@ def predict_rub_salary(vacancy):
     else:
         return None
 
+
 if __name__ == '__main__':
     vacancies_by_lang = dict()
 
@@ -48,9 +52,20 @@ if __name__ == '__main__':
         }
 
         response = requests.get(url, params=params)
+        vacancies = response.json()
+        vacancies_found = vacancies['found']
 
-        if language == 'Python':
-            for vacancy in response.json()['items']:
-                print(predict_rub_salary(vacancy))
+        vacancies_items = vacancies['items']
+        vacancies_salaries = list(map(lambda vacancy: predict_rub_salary(vacancy), vacancies_items))
+        processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
 
-        vacancies_by_lang[language] = response.json()['found']
+        vacancies_processed = len(processed_vacancies_salaries)
+        average_salary = sum(processed_vacancies_salaries) / vacancies_processed
+
+        vacancies_by_lang[language] = {
+            'vacancies_found': vacancies_found,
+            'vacancies_processed': vacancies_processed,
+            'average_salary': int(average_salary)
+        }
+
+    print(vacancies_by_lang)
