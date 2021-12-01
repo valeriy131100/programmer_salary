@@ -42,20 +42,36 @@ def predict_rub_salary(vacancy):
 
 if __name__ == '__main__':
     vacancies_by_lang = dict()
+    url = 'https://api.hh.ru/vacancies/'
 
     for language in languages:
-        url = 'https://api.hh.ru/vacancies/'
-        params = {
-            'text': f'Программист {language}',
-            'area': 1,  # код Москвы
-            'date_from': month_ago.isoformat()
-        }
+        page = 0
+        pages_number = 1
+        vacancies_items = []
+        vacancies_found = 0
 
-        response = requests.get(url, params=params)
-        vacancies = response.json()
-        vacancies_found = vacancies['found']
+        while page < pages_number:
+            params = {
+                'text': f'Программист {language}',
+                'area': 1,  # код Москвы
+                'date_from': month_ago.isoformat(),
+                'page': page
+            }
 
-        vacancies_items = vacancies['items']
+            page_response = requests.get(url, params=params)
+            page_response.raise_for_status()
+
+            page_vacancies = page_response.json()
+
+            vacancies_found = page_vacancies['found']
+            page_vacancies_items = page_vacancies['items']
+            vacancies_items.extend(page_vacancies_items)
+
+            pages_number = page_response.json()['pages']
+            print(f'Processed {language} page {page} of {pages_number} pages')
+
+            page += 1
+
         vacancies_salaries = list(map(lambda vacancy: predict_rub_salary(vacancy), vacancies_items))
         processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
 
