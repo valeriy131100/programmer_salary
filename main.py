@@ -20,27 +20,7 @@ languages = [
 month_ago = datetime.today() - timedelta(days=30)
 
 
-def predict_rub_salary(vacancy):
-    salary = vacancy['salary']
-    if not salary:
-        return None
-
-    currency = salary['currency']
-    salary_from = salary['from']
-    salary_to = salary['to']
-    if currency != 'RUR':
-        return None
-    elif salary_from and salary_to:
-        return (salary_from+salary_to) / 2
-    elif salary_from:
-        return 1.2 * salary_from
-    elif salary_to:
-        return 0.8 * salary_to
-    else:
-        return None
-
-
-if __name__ == '__main__':
+def get_vacancies_from_hh():
     vacancies_by_lang = dict()
     url = 'https://api.hh.ru/vacancies/'
 
@@ -84,4 +64,28 @@ if __name__ == '__main__':
             'average_salary': int(average_salary)
         }
 
-    print(vacancies_by_lang)
+    return vacancies_by_lang
+
+
+def predict_rub_salary(vacancy):
+    salary = vacancy['salary']
+    if not salary:
+        return None
+
+    currency = salary['currency']
+    salary_from = salary['from']
+    salary_to = salary['to']
+    if currency != 'RUR':
+        return None
+    elif salary_from and salary_to:
+        return (salary_from+salary_to) / 2
+    elif salary_from:
+        return 1.2 * salary_from
+    elif salary_to:
+        return 0.8 * salary_to
+    else:
+        return None
+
+
+if __name__ == '__main__':
+    print(get_vacancies_from_hh())
