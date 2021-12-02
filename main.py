@@ -58,7 +58,10 @@ def get_vacancies_from_hh():
         processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
 
         vacancies_processed = len(processed_vacancies_salaries)
-        average_salary = sum(processed_vacancies_salaries) / vacancies_processed
+        if vacancies_processed:
+            average_salary = int(sum(processed_vacancies_salaries) / vacancies_processed)
+        else:
+            average_salary = None
 
         vacancies_by_lang[language] = {
             'vacancies_found': vacancies_found,
