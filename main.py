@@ -50,7 +50,6 @@ def get_vacancies_from_hh():
             vacancies_items.extend(page_vacancies_items)
 
             pages_number = page_response.json()['pages']
-            print(f'Processed {language} page {page} of {pages_number} pages')
 
             page += 1
 
