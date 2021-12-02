@@ -68,18 +68,9 @@ def get_vacancies_from_hh():
     return vacancies_by_lang
 
 
-def predict_rub_salary(vacancy):
-    salary = vacancy['salary']
-    if not salary:
-        return None
-
-    currency = salary['currency']
-    salary_from = salary['from']
-    salary_to = salary['to']
-    if currency != 'RUR':
-        return None
-    elif salary_from and salary_to:
-        return (salary_from+salary_to) / 2
+def predict_salary(salary_from, salary_to):
+    if salary_from and salary_to:
+        return (salary_from + salary_to) / 2
     elif salary_from:
         return 1.2 * salary_from
     elif salary_to:
@@ -88,7 +79,41 @@ def predict_rub_salary(vacancy):
         return None
 
 
+def predict_rub_salary_sj(vacancy):
+    if vacancy['currency'] == 'rub':
+        return predict_salary(vacancy['payment_from'], vacancy['payment_to'])
+    else:
+        return None
+
+
+def predict_rub_salary_hh(vacancy):
+    salary = vacancy['salary']
+    if not salary:
+        return None
+
+    if salary['currency'] == 'RUR':
+        return predict_salary(salary['from'], salary['to'])
+    else:
+        return None
+
+
 if __name__ == '__main__':
     env = Env()
     env.read_env()
     superjob_token = env('SUPERJOB_TOKEN')
+
+    url = 'https://api.superjob.ru/2.0/vacancies/'
+
+    headers = {
+        'X-Api-App-Id': superjob_token
+    }
+
+    params = {
+        't': 4,  # код Москвы
+        'catalogues': 48,  # Разработка, программирование
+    }
+
+    response = requests.get(url, params=params, headers=headers)
+
+    for item in response.json()['objects']:
+        print(item['profession'], item['town']['title'], predict_rub_salary_sj(item))
