@@ -1,5 +1,6 @@
 import requests
 from datetime import datetime, timedelta
+from environs import Env
 
 languages = [
     'TypeScript',
@@ -88,4 +89,6 @@ def predict_rub_salary(vacancy):
 
 
 if __name__ == '__main__':
-    print(get_vacancies_from_hh())
+    env = Env()
+    env.read_env()
+    superjob_token = env('SUPERJOB_TOKEN')
