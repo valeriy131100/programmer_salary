@@ -160,7 +160,7 @@ def print_vacancies(vacancies, title):
         for language, info in vacancies.items()
     ]
 
-    table_data.insert(0, ['Язык программирования', 'Ваканский найдено', 'Ваканский обработано', 'Средняя зарплата'])
+    table_data.insert(0, ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата'])
 
     table_instance = AsciiTable(table_data, title)
 
