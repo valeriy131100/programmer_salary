@@ -73,7 +73,7 @@ def get_vacancies_from_sj(token):
     url = 'https://api.superjob.ru/2.0/vacancies/'
 
     headers = {
-        'X-Api-App-Id': superjob_token
+        'X-Api-App-Id': token
     }
 
     for language in languages:
