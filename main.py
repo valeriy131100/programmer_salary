@@ -1,6 +1,7 @@
 import requests
 from datetime import datetime, timedelta
 from environs import Env
+from terminaltables import AsciiTable
 
 languages = [
     'TypeScript',
@@ -151,9 +152,23 @@ def predict_rub_salary_hh(vacancy):
         return None
 
 
+def print_vacancies(vacancies, title):
+    table_data = [
+        [language, info['vacancies_found'], info['vacancies_processed'], info['average_salary']]
+        for language, info in vacancies.items()
+    ]
+
+    table_data.insert(0, ['Язык программирования', 'Ваканский найдено', 'Ваканский обработано', 'Средняя зарплата'])
+
+    table_instance = AsciiTable(table_data, title)
+
+    print(table_instance.table)
+
+
 if __name__ == '__main__':
     env = Env()
     env.read_env()
     superjob_token = env('SUPERJOB_TOKEN')
 
-    print(get_vacancies_from_sj(superjob_token))
+    print_vacancies(get_vacancies_from_hh(), 'HeadHunter Moscow')
+    print_vacancies(get_vacancies_from_sj(superjob_token), 'SuperJob Moscow')
