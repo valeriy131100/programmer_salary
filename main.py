@@ -68,6 +68,60 @@ def get_vacancies_from_hh():
     return vacancies_by_lang
 
 
+def get_vacancies_from_sj(token):
+    vacancies_by_lang = dict()
+    url = 'https://api.superjob.ru/2.0/vacancies/'
+
+    headers = {
+        'X-Api-App-Id': superjob_token
+    }
+
+    for language in languages:
+        vacancies_items = []
+        vacancies_found = 0
+        page = 0
+
+        while True:
+            params = {
+                't': 4,  # код Москвы
+                'catalogues': 48,  # Разработка, программирование
+                'keywords[0][keys]': language,
+                'keywords[0][srws]': 1,  # поиск только в должности
+                'page': page
+            }
+
+            page_response = requests.get(url, params=params, headers=headers)
+            page_response.raise_for_status()
+
+            page_vacancies = page_response.json()
+
+            vacancies_found = page_vacancies['total']
+            page_vacancies_items = page_vacancies['objects']
+            vacancies_items.extend(page_vacancies_items)
+
+            if not page_vacancies['more']:
+                break
+
+            page += 1
+
+        vacancies_salaries = list(map(lambda vacancy: predict_rub_salary_sj(vacancy), vacancies_items))
+        processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
+
+        vacancies_processed = len(processed_vacancies_salaries)
+        if vacancies_processed:
+            average_salary = int(sum(processed_vacancies_salaries) / vacancies_processed)
+        else:
+            average_salary = None
+
+        vacancies_by_lang[language] = {
+            'vacancies_found': vacancies_found,
+            'vacancies_processed': vacancies_processed,
+            'average_salary': average_salary
+        }
+
+    return vacancies_by_lang
+
+
 def predict_salary(salary_from, salary_to):
     if salary_from and salary_to:
         return (salary_from + salary_to) / 2
@@ -102,18 +156,4 @@ if __name__ == '__main__':
     env.read_env()
     superjob_token = env('SUPERJOB_TOKEN')
 
-    url = 'https://api.superjob.ru/2.0/vacancies/'
-
-    headers = {
-        'X-Api-App-Id': superjob_token
-    }
-
-    params = {
-        't': 4,  # код Москвы
-        'catalogues': 48,  # Разработка, программирование
-    }
-
-    response = requests.get(url, params=params, headers=headers)
-
-    for item in response.json()['objects']:
-        print(item['profession'], item['town']['title'], predict_rub_salary_sj(item))
+    print(get_vacancies_from_sj(superjob_token))
