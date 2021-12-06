@@ -99,7 +99,7 @@ def get_vacancies_from_hh(languages, from_date):
     vacancies_by_lang = dict()
 
     for language in languages:
-        vacancies_by_lang[language] = get_language_vacancies_from_hh(language)
+        vacancies_by_lang[language] = get_language_vacancies_from_hh(language, from_date)
 
     return vacancies_by_lang
 
@@ -109,7 +109,6 @@ def get_vacancies_from_sj(token, languages):
 
     for language in languages:
         vacancies_by_lang[language] = get_language_vacancies_from_sj(token, language)
-
 
     return vacancies_by_lang
 
