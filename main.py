@@ -116,26 +116,18 @@ def predict_salary(salary_from, salary_to):
         return 1.2 * salary_from
     elif salary_to:
         return 0.8 * salary_to
-    else:
-        return None
 
 
 def predict_rub_salary_sj(vacancy):
     if vacancy['currency'] == 'rub':
         return predict_salary(vacancy['payment_from'], vacancy['payment_to'])
-    else:
-        return None
 
 
 def predict_rub_salary_hh(vacancy):
     salary = vacancy['salary']
-    if not salary:
-        return None
 
-    if salary['currency'] == 'RUR':
+    if salary and salary['currency'] == 'RUR':
         return predict_salary(salary['from'], salary['to'])
-    else:
-        return None
 
 
 def print_vacancies(vacancies, title):
