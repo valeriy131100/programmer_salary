@@ -17,7 +17,7 @@ $ python3 -m venv [полный путь до папки programmer_salary]
 Активируйте виртуальное окружение и установите зависимости:
 ```bash
 $ cd programmer_salary
-$ source venv/bin/activate
+$ source /bin/activate
 $ pip install -r requirements.txt
 ```
 # Использование
@@ -31,7 +31,7 @@ $ pip install -r requirements.txt
 
 Находясь в директории programmer_salary исполните:
 ```bash
-$ venv/bin/python main.py
+$ /bin/python main.py
 ```
 Программа покажет среднюю зарплату программистов по данным SuperJob и HeadHunter в виде таблиц.
 ```text
