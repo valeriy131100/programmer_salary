@@ -130,7 +130,7 @@ def predict_rub_salary_hh(vacancy):
         return predict_salary(salary['from'], salary['to'])
 
 
-def print_vacancies(vacancies, title):
+def get_vacancies_table(vacancies, title):
     table = [
         [
             language,
@@ -143,9 +143,7 @@ def print_vacancies(vacancies, title):
 
     table.insert(0, ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата'])
 
-    table_instance = AsciiTable(table, title)
-
-    print(table_instance.table)
+    return AsciiTable(table, title).table
 
 
 if __name__ == '__main__':
@@ -165,8 +163,10 @@ if __name__ == '__main__':
     SJ_MOSCOW = 4
 
     hh_vacancies = get_vacancies_from_hh(languages, from_date, area=HH_MOSCOW)
+    hh_table = get_vacancies_table(hh_vacancies, 'HeadHunter Moscow')
+    print(hh_table)
+
     sj_vacancies = get_vacancies_from_sj(superjob_token, languages,
                                          area=SJ_MOSCOW, catalogue=DEVELOPMENT, where_search=SEARCH_ONLY_NAME)
-
-    print_vacancies(hh_vacancies, 'HeadHunter Moscow')
-    print_vacancies(sj_vacancies, 'SuperJob Moscow')
+    sj_table = get_vacancies_table(sj_vacancies, 'SuperJob Moscow')
+    print(sj_table)
