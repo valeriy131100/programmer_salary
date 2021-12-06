@@ -29,7 +29,7 @@ def get_language_vacancies_from_hh(language, from_date, area):
 
         pages_number = page_vacancies['pages']
 
-        if page == pages_number:
+        if page == pages_number - 1:
             break
 
     vacancies_salaries = [predict_rub_salary_hh(vacancy) for vacancy in vacancies]
