@@ -1,3 +1,5 @@
+from itertools import count
+
 import requests
 from datetime import datetime, timedelta
 from environs import Env
@@ -9,12 +11,10 @@ def get_vacancies_from_hh(languages, from_date):
     url = 'https://api.hh.ru/vacancies/'
 
     for language in languages:
-        page = 0
-        pages_number = 1
         vacancies_items = []
         vacancies_found = 0
 
-        while page < pages_number:
+        for page in count():
             params = {
                 'text': f'Программист {language}',
                 'area': 1,  # код Москвы
@@ -33,7 +33,8 @@ def get_vacancies_from_hh(languages, from_date):
 
             pages_number = page_response.json()['pages']
 
-            page += 1
+            if page == pages_number:
+                break
 
         vacancies_salaries = [predict_rub_salary_sj(vacancy) for vacancy in vacancies_items]
         processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
@@ -64,9 +65,8 @@ def get_vacancies_from_sj(token, languages):
     for language in languages:
         vacancies_items = []
         vacancies_found = 0
-        page = 0
 
-        while True:
+        for page in count():
             params = {
                 't': 4,  # код Москвы
                 'catalogues': 48,  # Разработка, программирование
@@ -86,8 +86,6 @@ def get_vacancies_from_sj(token, languages):
 
             if not page_vacancies['more']:
                 break
-
-            page += 1
 
         vacancies_salaries = [predict_rub_salary_sj(vacancy) for vacancy in vacancies_items]
         processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
