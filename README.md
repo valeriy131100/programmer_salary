@@ -1,31 +1,35 @@
 # progammer_salary
-Программа для вычисления средней зарплаты московских программистов по языку программирования. Используются данные [HeadHunter](https://hh.ru) за последний месяц и данные [Superjob](https://www.superjob.ru/). 
+Программа для вычисления средней зарплаты московских программистов по языку программирования. Используются данные [HeadHunter](https://hh.ru) и [Superjob](https://www.superjob.ru/). 
 
 # Установка
 Вам понадобится установленный Python 3.6-3.9 и git.
 
 Склонируйте репозиторий:
 ```bash
-$ git clone https://github.com/valeriy131100/progammer_salary
+$ git clone https://github.com/valeriy131100/programmer_salary
 ```
 
 Создайте в этой папке виртуальное окружение:
 ```bash
-$ python3 -m venv [полный путь до папки progammer_salary]
+$ python3 -m venv [полный путь до папки programmer_salary]
 ```
 
 Активируйте виртуальное окружение и установите зависимости:
 ```bash
-$ cd progammer_salary
+$ cd programmer_salary
 $ source bin/activate
 $ pip install -r requirements.txt
 ```
 # Использование
 Получите токен API Superjob. Это можно сделать [здесь](https://api.superjob.ru/).
 
-Заполните файл .env.example и переименуйте его в .env или иным образом задайте переменную среды SUPERJOB_TOKEN.
+Заполните файл .env.example и переименуйте его в .env или иным образом задайте переменные среды:
+* SUPERJOB_TOKEN - токен API Superjob.
+* LANGUAGES - список языков программирования для поиска через запятую. Можно не заполнять, по умолчанию используется список из нескольких самых популярных.
+* DAYS_AGO - на сколько дней назад искать вакансии с HeadHunter. Можно не заполнять, по умолчанию равен 30 (то есть ищутся вакансии не старше месяца).
 
-Находясь в директории progammer_salary исполните:
+
+Находясь в директории programmer_salary исполните:
 ```bash
 $ bin/python main.py
 ```
