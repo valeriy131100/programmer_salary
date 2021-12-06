@@ -8,7 +8,7 @@ from terminaltables import AsciiTable
 
 def get_language_vacancies_from_hh(language, from_date, area):
     url = 'https://api.hh.ru/vacancies/'
-    vacancies_items = []
+    vacancies = []
     vacancies_found = 0
 
     for page in count():
@@ -25,15 +25,14 @@ def get_language_vacancies_from_hh(language, from_date, area):
         page_vacancies = page_response.json()
 
         vacancies_found = page_vacancies['found']
-        page_vacancies_items = page_vacancies['items']
-        vacancies_items.extend(page_vacancies_items)
+        vacancies.extend(page_vacancies['items'])
 
         pages_number = page_response.json()['pages']
 
         if page == pages_number:
             break
 
-    vacancies_salaries = [predict_rub_salary_hh(vacancy) for vacancy in vacancies_items]
+    vacancies_salaries = [predict_rub_salary_hh(vacancy) for vacancy in vacancies]
     processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
 
     vacancies_processed = len(processed_vacancies_salaries)
@@ -43,8 +42,8 @@ def get_language_vacancies_from_hh(language, from_date, area):
         average_salary = None
 
     return {
-        'vacancies_found': vacancies_found,
-        'vacancies_processed': vacancies_processed,
+        'found': vacancies_found,
+        'processed': vacancies_processed,
         'average_salary': int(average_salary)
     }
 
@@ -55,7 +54,7 @@ def get_language_vacancies_from_sj(token, language, area, catalogue, where_searc
     headers = {
         'X-Api-App-Id': token
     }
-    vacancies_items = []
+    vacancies = []
     vacancies_found = 0
 
     for page in count():
@@ -73,13 +72,12 @@ def get_language_vacancies_from_sj(token, language, area, catalogue, where_searc
         page_vacancies = page_response.json()
 
         vacancies_found = page_vacancies['total']
-        page_vacancies_items = page_vacancies['objects']
-        vacancies_items.extend(page_vacancies_items)
+        vacancies.extend(page_vacancies['objects'])
 
         if not page_vacancies['more']:
             break
 
-    vacancies_salaries = [predict_rub_salary_sj(vacancy) for vacancy in vacancies_items]
+    vacancies_salaries = [predict_rub_salary_sj(vacancy) for vacancy in vacancies]
     processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
 
     vacancies_processed = len(processed_vacancies_salaries)
@@ -89,8 +87,8 @@ def get_language_vacancies_from_sj(token, language, area, catalogue, where_searc
         average_salary = None
 
     return {
-        'vacancies_found': vacancies_found,
-        'vacancies_processed': vacancies_processed,
+        'found': vacancies_found,
+        'processed': vacancies_processed,
         'average_salary': average_salary
     }
 
@@ -143,14 +141,19 @@ def predict_rub_salary_hh(vacancy):
 
 
 def print_vacancies(vacancies, title):
-    table_data = [
-        [language, info['vacancies_found'], info['vacancies_processed'], info['average_salary']]
-        for language, info in vacancies.items()
+    table = [
+        [
+            language,
+            lang_vacancies['found'],
+            lang_vacancies['processed'],
+            lang_vacancies['average_salary']
+        ]
+        for language, lang_vacancies in vacancies.items()
     ]
 
-    table_data.insert(0, ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата'])
+    table.insert(0, ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата'])
 
-    table_instance = AsciiTable(table_data, title)
+    table_instance = AsciiTable(table, title)
 
     print(table_instance.table)
 
