@@ -6,101 +6,110 @@ from environs import Env
 from terminaltables import AsciiTable
 
 
+def get_language_vacancies_from_hh(language, from_date):
+    url = 'https://api.hh.ru/vacancies/'
+    vacancies_items = []
+    vacancies_found = 0
+
+    for page in count():
+        params = {
+            'text': f'Программист {language}',
+            'area': 1,  # код Москвы
+            'date_from': from_date.isoformat(),
+            'page': page
+        }
+
+        page_response = requests.get(url, params=params)
+        page_response.raise_for_status()
+
+        page_vacancies = page_response.json()
+
+        vacancies_found = page_vacancies['found']
+        page_vacancies_items = page_vacancies['items']
+        vacancies_items.extend(page_vacancies_items)
+
+        pages_number = page_response.json()['pages']
+
+        if page == pages_number:
+            break
+
+    vacancies_salaries = [predict_rub_salary_hh(vacancy) for vacancy in vacancies_items]
+    processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
+
+    vacancies_processed = len(processed_vacancies_salaries)
+    if vacancies_processed:
+        average_salary = int(sum(processed_vacancies_salaries) / vacancies_processed)
+    else:
+        average_salary = None
+
+    return {
+        'vacancies_found': vacancies_found,
+        'vacancies_processed': vacancies_processed,
+        'average_salary': int(average_salary)
+    }
+
+
+def get_language_vacancies_from_sj(token, language):
+    url = 'https://api.superjob.ru/2.0/vacancies/'
+
+    headers = {
+        'X-Api-App-Id': token
+    }
+    vacancies_items = []
+    vacancies_found = 0
+
+    for page in count():
+        params = {
+            't': 4,  # код Москвы
+            'catalogues': 48,  # Разработка, программирование
+            'keywords[0][keys]': language,
+            'keywords[0][srws]': 1,  # поиск только в должности
+            'page': page
+        }
+
+        page_response = requests.get(url, params=params, headers=headers)
+        page_response.raise_for_status()
+
+        page_vacancies = page_response.json()
+
+        vacancies_found = page_vacancies['total']
+        page_vacancies_items = page_vacancies['objects']
+        vacancies_items.extend(page_vacancies_items)
+
+        if not page_vacancies['more']:
+            break
+
+    vacancies_salaries = [predict_rub_salary_sj(vacancy) for vacancy in vacancies_items]
+    processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
+
+    vacancies_processed = len(processed_vacancies_salaries)
+    if vacancies_processed:
+        average_salary = int(sum(processed_vacancies_salaries) / vacancies_processed)
+    else:
+        average_salary = None
+
+    return {
+        'vacancies_found': vacancies_found,
+        'vacancies_processed': vacancies_processed,
+        'average_salary': average_salary
+    }
+
+
 def get_vacancies_from_hh(languages, from_date):
     vacancies_by_lang = dict()
-    url = 'https://api.hh.ru/vacancies/'
 
     for language in languages:
-        vacancies_items = []
-        vacancies_found = 0
-
-        for page in count():
-            params = {
-                'text': f'Программист {language}',
-                'area': 1,  # код Москвы
-                'date_from': from_date.isoformat(),
-                'page': page
-            }
-
-            page_response = requests.get(url, params=params)
-            page_response.raise_for_status()
-
-            page_vacancies = page_response.json()
-
-            vacancies_found = page_vacancies['found']
-            page_vacancies_items = page_vacancies['items']
-            vacancies_items.extend(page_vacancies_items)
-
-            pages_number = page_response.json()['pages']
-
-            if page == pages_number:
-                break
-
-        vacancies_salaries = [predict_rub_salary_hh(vacancy) for vacancy in vacancies_items]
-        processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
-
-        vacancies_processed = len(processed_vacancies_salaries)
-        if vacancies_processed:
-            average_salary = int(sum(processed_vacancies_salaries) / vacancies_processed)
-        else:
-            average_salary = None
-
-        vacancies_by_lang[language] = {
-            'vacancies_found': vacancies_found,
-            'vacancies_processed': vacancies_processed,
-            'average_salary': int(average_salary)
-        }
+        vacancies_by_lang[language] = get_language_vacancies_from_hh(language)
 
     return vacancies_by_lang
 
 
 def get_vacancies_from_sj(token, languages):
     vacancies_by_lang = dict()
-    url = 'https://api.superjob.ru/2.0/vacancies/'
-
-    headers = {
-        'X-Api-App-Id': token
-    }
 
     for language in languages:
-        vacancies_items = []
-        vacancies_found = 0
+        vacancies_by_lang[language] = get_language_vacancies_from_sj(token, language)
 
-        for page in count():
-            params = {
-                't': 4,  # код Москвы
-                'catalogues': 48,  # Разработка, программирование
-                'keywords[0][keys]': language,
-                'keywords[0][srws]': 1,  # поиск только в должности
-                'page': page
-            }
-
-            page_response = requests.get(url, params=params, headers=headers)
-            page_response.raise_for_status()
-
-            page_vacancies = page_response.json()
-
-            vacancies_found = page_vacancies['total']
-            page_vacancies_items = page_vacancies['objects']
-            vacancies_items.extend(page_vacancies_items)
-
-            if not page_vacancies['more']:
-                break
-
-        vacancies_salaries = [predict_rub_salary_sj(vacancy) for vacancy in vacancies_items]
-        processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
-
-        vacancies_processed = len(processed_vacancies_salaries)
-        if vacancies_processed:
-            average_salary = int(sum(processed_vacancies_salaries) / vacancies_processed)
-        else:
-            average_salary = None
-
-        vacancies_by_lang[language] = {
-            'vacancies_found': vacancies_found,
-            'vacancies_processed': vacancies_processed,
-            'average_salary': average_salary
-        }
 
     return vacancies_by_lang
 
