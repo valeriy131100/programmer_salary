@@ -27,7 +27,7 @@ def get_language_vacancies_from_hh(language, from_date, area):
         vacancies_found = page_vacancies['found']
         vacancies.extend(page_vacancies['items'])
 
-        pages_number = page_response.json()['pages']
+        pages_number = page_vacancies['pages']
 
         if page == pages_number:
             break
