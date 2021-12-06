@@ -36,7 +36,7 @@ def get_vacancies_from_hh(languages, from_date):
             if page == pages_number:
                 break
 
-        vacancies_salaries = [predict_rub_salary_sj(vacancy) for vacancy in vacancies_items]
+        vacancies_salaries = [predict_rub_salary_hh(vacancy) for vacancy in vacancies_items]
         processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
 
         vacancies_processed = len(processed_vacancies_salaries)
