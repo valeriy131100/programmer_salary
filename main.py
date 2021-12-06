@@ -3,26 +3,11 @@ from datetime import datetime, timedelta
 from environs import Env
 from terminaltables import AsciiTable
 
-languages = [
-    'TypeScript',
-    'Swift',
-    'Scala',
-    'Objective-C',
-    'Go',
-    'C',
-    'C#',
-    'C++',
-    'PHP',
-    'Ruby',
-    'Python',
-    'Java',
-    'JavaScript'
-]
 
 month_ago = datetime.today() - timedelta(days=30)
 
 
-def get_vacancies_from_hh():
+def get_vacancies_from_hh(languages):
     vacancies_by_lang = dict()
     url = 'https://api.hh.ru/vacancies/'
 
@@ -71,7 +56,7 @@ def get_vacancies_from_hh():
     return vacancies_by_lang
 
 
-def get_vacancies_from_sj(token):
+def get_vacancies_from_sj(token, languages):
     vacancies_by_lang = dict()
     url = 'https://api.superjob.ru/2.0/vacancies/'
 
@@ -171,6 +156,9 @@ if __name__ == '__main__':
     env = Env()
     env.read_env()
     superjob_token = env('SUPERJOB_TOKEN')
+    languages = env.list('LANGUAGES',
+                         default=['TypeScript', 'Swift', 'Scala', 'Objective-C', 'Go',
+                                  'C', 'C#', 'C++', 'PHP', 'Ruby', 'Python', 'Java', 'JavaScript'])
 
-    print_vacancies(get_vacancies_from_hh(), 'HeadHunter Moscow')
-    print_vacancies(get_vacancies_from_sj(superjob_token), 'SuperJob Moscow')
+    print_vacancies(get_vacancies_from_hh(languages), 'HeadHunter Moscow')
+    print_vacancies(get_vacancies_from_sj(superjob_token, languages), 'SuperJob Moscow')
