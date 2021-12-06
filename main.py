@@ -9,7 +9,6 @@ from terminaltables import AsciiTable
 def get_language_vacancies_from_hh(language, from_date, area):
     url = 'https://api.hh.ru/vacancies/'
     vacancies = []
-    vacancies_found = 0
 
     for page in count():
         params = {
@@ -24,7 +23,6 @@ def get_language_vacancies_from_hh(language, from_date, area):
 
         page_vacancies = page_response.json()
 
-        vacancies_found = page_vacancies['found']
         vacancies.extend(page_vacancies['items'])
 
         pages_number = page_vacancies['pages']
@@ -32,6 +30,7 @@ def get_language_vacancies_from_hh(language, from_date, area):
         if page == pages_number - 1:
             break
 
+    vacancies_found = len(vacancies)
     vacancies_salaries = [predict_rub_salary_hh(vacancy) for vacancy in vacancies]
     processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
 
@@ -55,7 +54,6 @@ def get_language_vacancies_from_sj(token, language, area, catalogue, where_searc
         'X-Api-App-Id': token
     }
     vacancies = []
-    vacancies_found = 0
 
     for page in count():
         params = {
@@ -71,12 +69,12 @@ def get_language_vacancies_from_sj(token, language, area, catalogue, where_searc
 
         page_vacancies = page_response.json()
 
-        vacancies_found = page_vacancies['total']
         vacancies.extend(page_vacancies['objects'])
 
         if not page_vacancies['more']:
             break
 
+    vacancies_found = len(vacancies)
     vacancies_salaries = [predict_rub_salary_sj(vacancy) for vacancy in vacancies]
     processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
 
