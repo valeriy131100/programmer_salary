@@ -6,7 +6,7 @@ from environs import Env
 from terminaltables import AsciiTable
 
 
-def get_language_vacancies_from_hh(language, from_date):
+def get_language_vacancies_from_hh(language, from_date, area):
     url = 'https://api.hh.ru/vacancies/'
     vacancies_items = []
     vacancies_found = 0
@@ -14,7 +14,7 @@ def get_language_vacancies_from_hh(language, from_date):
     for page in count():
         params = {
             'text': f'Программист {language}',
-            'area': 1,  # код Москвы
+            'area': area,
             'date_from': from_date.isoformat(),
             'page': page
         }
@@ -49,7 +49,7 @@ def get_language_vacancies_from_hh(language, from_date):
     }
 
 
-def get_language_vacancies_from_sj(token, language):
+def get_language_vacancies_from_sj(token, language, area, catalogue, where_search):
     url = 'https://api.superjob.ru/2.0/vacancies/'
 
     headers = {
@@ -60,10 +60,10 @@ def get_language_vacancies_from_sj(token, language):
 
     for page in count():
         params = {
-            't': 4,  # код Москвы
-            'catalogues': 48,  # Разработка, программирование
+            't': area,
+            'catalogues': catalogue,
             'keywords[0][keys]': language,
-            'keywords[0][srws]': 1,  # поиск только в должности
+            'keywords[0][srws]': where_search,
             'page': page
         }
 
@@ -95,20 +95,20 @@ def get_language_vacancies_from_sj(token, language):
     }
 
 
-def get_vacancies_from_hh(languages, from_date):
+def get_vacancies_from_hh(languages, from_date, area):
     vacancies_by_lang = dict()
 
     for language in languages:
-        vacancies_by_lang[language] = get_language_vacancies_from_hh(language, from_date)
+        vacancies_by_lang[language] = get_language_vacancies_from_hh(language, from_date, area)
 
     return vacancies_by_lang
 
 
-def get_vacancies_from_sj(token, languages):
+def get_vacancies_from_sj(token, languages, area, catalogue, where_search):
     vacancies_by_lang = dict()
 
     for language in languages:
-        vacancies_by_lang[language] = get_language_vacancies_from_sj(token, language)
+        vacancies_by_lang[language] = get_language_vacancies_from_sj(token, language, area, catalogue, where_search)
 
     return vacancies_by_lang
 
@@ -165,5 +165,15 @@ if __name__ == '__main__':
     days_ago = env.int('DAYS_AGO', default=30)
     from_date = datetime.today() - timedelta(days=days_ago)
 
-    print_vacancies(get_vacancies_from_hh(languages, from_date), 'HeadHunter Moscow')
-    print_vacancies(get_vacancies_from_sj(superjob_token, languages), 'SuperJob Moscow')
+    HH_MOSCOW = 1
+
+    SEARCH_ONLY_NAME = 1
+    DEVELOPMENT = 48
+    SJ_MOSCOW = 4
+
+    hh_vacancies = get_vacancies_from_hh(languages, from_date, area=HH_MOSCOW)
+    sj_vacancies = get_vacancies_from_sj(superjob_token, languages,
+                                         area=SJ_MOSCOW, catalogue=DEVELOPMENT, where_search=SEARCH_ONLY_NAME)
+
+    print_vacancies(hh_vacancies, 'HeadHunter Moscow')
+    print_vacancies(sj_vacancies, 'SuperJob Moscow')
