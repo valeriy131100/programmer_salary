@@ -4,10 +4,7 @@ from environs import Env
 from terminaltables import AsciiTable
 
 
-month_ago = datetime.today() - timedelta(days=30)
-
-
-def get_vacancies_from_hh(languages):
+def get_vacancies_from_hh(languages, from_date):
     vacancies_by_lang = dict()
     url = 'https://api.hh.ru/vacancies/'
 
@@ -21,7 +18,7 @@ def get_vacancies_from_hh(languages):
             params = {
                 'text': f'Программист {language}',
                 'area': 1,  # код Москвы
-                'date_from': month_ago.isoformat(),
+                'date_from': from_date.isoformat(),
                 'page': page
             }
 
@@ -159,6 +156,8 @@ if __name__ == '__main__':
     languages = env.list('LANGUAGES',
                          default=['TypeScript', 'Swift', 'Scala', 'Objective-C', 'Go',
                                   'C', 'C#', 'C++', 'PHP', 'Ruby', 'Python', 'Java', 'JavaScript'])
+    days_ago = env.int('DAYS_AGO', default=30)
+    from_date = datetime.today() - timedelta(days=days_ago)
 
-    print_vacancies(get_vacancies_from_hh(languages), 'HeadHunter Moscow')
+    print_vacancies(get_vacancies_from_hh(languages, from_date), 'HeadHunter Moscow')
     print_vacancies(get_vacancies_from_sj(superjob_token, languages), 'SuperJob Moscow')
