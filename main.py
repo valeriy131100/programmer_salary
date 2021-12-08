@@ -9,6 +9,7 @@ from terminaltables import AsciiTable
 def get_language_vacancies_from_hh(language, from_date, area):
     url = 'https://api.hh.ru/vacancies/'
     vacancies = []
+    page_vacancies = None
 
     for page in count():
         params = {
@@ -30,7 +31,7 @@ def get_language_vacancies_from_hh(language, from_date, area):
         if page == pages_number - 1:
             break
 
-    vacancies_found = len(vacancies)
+    vacancies_found = page_vacancies['found']
     vacancies_salaries = [predict_rub_salary_hh(vacancy) for vacancy in vacancies]
     processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
 
@@ -54,6 +55,7 @@ def get_language_vacancies_from_sj(token, language, area, catalogue, where_searc
         'X-Api-App-Id': token
     }
     vacancies = []
+    page_vacancies = None
 
     for page in count():
         params = {
@@ -74,7 +76,7 @@ def get_language_vacancies_from_sj(token, language, area, catalogue, where_searc
         if not page_vacancies['more']:
             break
 
-    vacancies_found = len(vacancies)
+    vacancies_found = page_vacancies['total']
     vacancies_salaries = [predict_rub_salary_sj(vacancy) for vacancy in vacancies]
     processed_vacancies_salaries = [salary for salary in vacancies_salaries if salary]
 
