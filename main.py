@@ -6,7 +6,7 @@ from environs import Env
 from terminaltables import AsciiTable
 
 
-def get_language_vacancies_from_hh(language, from_date, area):
+def get_lang_vacancies_stat_from_hh(language, from_date, area):
     url = 'https://api.hh.ru/vacancies/'
     vacancies = []
     page_vacancies = None
@@ -42,13 +42,13 @@ def get_language_vacancies_from_hh(language, from_date, area):
         average_salary = None
 
     return {
-        'found': vacancies_found,
-        'processed': vacancies_processed,
+        'vacancies_found': vacancies_found,
+        'vacancies_processed': vacancies_processed,
         'average_salary': int(average_salary)
     }
 
 
-def get_language_vacancies_from_sj(token, language, area, catalogue, where_search):
+def get_lang_vacancies_stat_from_sj(token, language, area, catalogue, where_search):
     url = 'https://api.superjob.ru/2.0/vacancies/'
 
     headers = {
@@ -87,28 +87,28 @@ def get_language_vacancies_from_sj(token, language, area, catalogue, where_searc
         average_salary = None
 
     return {
-        'found': vacancies_found,
+        'vacancies_found': vacancies_found,
         'processed': vacancies_processed,
         'average_salary': average_salary
     }
 
 
-def get_vacancies_from_hh(languages, from_date, area):
-    vacancies_by_lang = dict()
+def get_vacancies_stat_from_hh(languages, from_date, area):
+    vacancies_stat = dict()
 
     for language in languages:
-        vacancies_by_lang[language] = get_language_vacancies_from_hh(language, from_date, area)
+        vacancies_stat[language] = get_lang_vacancies_stat_from_hh(language, from_date, area)
 
-    return vacancies_by_lang
+    return vacancies_stat
 
 
-def get_vacancies_from_sj(token, languages, area, catalogue, where_search):
-    vacancies_by_lang = dict()
+def get_vacancies_stat_from_sj(token, languages, area, catalogue, where_search):
+    vacancies_stat = dict()
 
     for language in languages:
-        vacancies_by_lang[language] = get_language_vacancies_from_sj(token, language, area, catalogue, where_search)
+        vacancies_stat[language] = get_lang_vacancies_stat_from_sj(token, language, area, catalogue, where_search)
 
-    return vacancies_by_lang
+    return vacancies_stat
 
 
 def predict_salary(salary_from, salary_to):
@@ -132,15 +132,15 @@ def predict_rub_salary_hh(vacancy):
         return predict_salary(salary['from'], salary['to'])
 
 
-def get_vacancies_table(vacancies, title):
+def get_vacancies_stat_table(vacancies, title):
     table = [
         [
             language,
-            lang_vacancies['found'],
-            lang_vacancies['processed'],
-            lang_vacancies['average_salary']
+            stat['vacancies_found'],
+            stat['vacancies_processed'],
+            stat['average_salary']
         ]
-        for language, lang_vacancies in vacancies.items()
+        for language, stat in vacancies.items()
     ]
 
     table.insert(0, ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата'])
@@ -164,11 +164,11 @@ if __name__ == '__main__':
     DEVELOPMENT = 48
     SJ_MOSCOW = 4
 
-    hh_vacancies = get_vacancies_from_hh(languages, from_date, area=HH_MOSCOW)
-    hh_table = get_vacancies_table(hh_vacancies, 'HeadHunter Moscow')
+    hh_vacancies_stat = get_vacancies_stat_from_hh(languages, from_date, area=HH_MOSCOW)
+    hh_table = get_vacancies_stat_table(hh_vacancies_stat, 'HeadHunter Moscow')
     print(hh_table)
 
-    sj_vacancies = get_vacancies_from_sj(superjob_token, languages,
-                                         area=SJ_MOSCOW, catalogue=DEVELOPMENT, where_search=SEARCH_ONLY_NAME)
-    sj_table = get_vacancies_table(sj_vacancies, 'SuperJob Moscow')
+    sj_vacancies_stat = get_vacancies_stat_from_sj(superjob_token, languages,
+                                                   area=SJ_MOSCOW, catalogue=DEVELOPMENT, where_search=SEARCH_ONLY_NAME)
+    sj_table = get_vacancies_stat_table(sj_vacancies_stat, 'SuperJob Moscow')
     print(sj_table)
