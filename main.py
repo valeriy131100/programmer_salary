@@ -158,17 +158,17 @@ if __name__ == '__main__':
     days_ago = env.int('DAYS_AGO', default=30)
     from_date = datetime.today() - timedelta(days=days_ago)
 
-    HH_MOSCOW = 1
+    hh_moscow = 1
 
-    SEARCH_ONLY_NAME = 1
-    DEVELOPMENT = 48
-    SJ_MOSCOW = 4
+    search_only_name = 1
+    development = 48
+    sj_moscow = 4
 
-    hh_vacancies_stat = get_vacancies_stat_from_hh(languages, from_date, area=HH_MOSCOW)
+    hh_vacancies_stat = get_vacancies_stat_from_hh(languages, from_date, area=hh_moscow)
     hh_table = get_vacancies_stat_table(hh_vacancies_stat, 'HeadHunter Moscow')
     print(hh_table)
 
     sj_vacancies_stat = get_vacancies_stat_from_sj(superjob_token, languages,
-                                                   area=SJ_MOSCOW, catalogue=DEVELOPMENT, where_search=SEARCH_ONLY_NAME)
+                                                   area=sj_moscow, catalogue=development, where_search=search_only_name)
     sj_table = get_vacancies_stat_table(sj_vacancies_stat, 'SuperJob Moscow')
     print(sj_table)
