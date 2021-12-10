@@ -9,7 +9,6 @@ from terminaltables import AsciiTable
 def get_lang_vacancies_stat_from_hh(language, from_date, area):
     url = 'https://api.hh.ru/vacancies/'
     vacancies = []
-    page_vacancies = None
 
     for page in count():
         params = {
@@ -55,7 +54,6 @@ def get_lang_vacancies_stat_from_sj(token, language, area, catalogue, where_sear
         'X-Api-App-Id': token
     }
     vacancies = []
-    page_vacancies = None
 
     for page in count():
         params = {
