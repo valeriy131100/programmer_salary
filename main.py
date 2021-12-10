@@ -88,7 +88,7 @@ def get_lang_vacancies_stat_from_sj(token, language, area, catalogue, where_sear
 
     return {
         'vacancies_found': vacancies_found,
-        'processed': vacancies_processed,
+        'vacancies_processed': vacancies_processed,
         'average_salary': average_salary
     }
 
